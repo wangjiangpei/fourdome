@@ -18,6 +18,7 @@ public class BaseApplication extends Application {
 	public static BmobGeoPoint mePoint;
 	public static User user;
 	public static MainActivity main;
+	public static BmobGeoPoint point;
 
 	@Override
 	public void onCreate() {
