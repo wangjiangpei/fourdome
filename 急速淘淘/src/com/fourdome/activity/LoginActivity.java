@@ -21,6 +21,7 @@ import cn.bmob.v3.listener.FindListener;
 import cn.bmob.v3.listener.LogInListener;
 
 import com.example.fragment.MainActivity;
+import com.example.slidingmenu.BaseApplication;
 import com.example.slidingmenu.R;
 import com.example.slidingmenu.R.id;
 import com.example.slidingmenu.R.layout;

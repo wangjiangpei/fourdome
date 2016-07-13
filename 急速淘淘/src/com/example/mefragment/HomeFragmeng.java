@@ -3,9 +3,9 @@ package com.example.mefragment;
 import java.util.ArrayList;
 import java.util.List;
 
+import com.example.slidingmenu.BaseApplication;
 import com.example.slidingmenu.BaseFragment;
 import com.example.slidingmenu.R;
-import com.fourdome.activity.BaseApplication;
 import com.fourdome.activity.MeActivity;
 import com.fourdome.activity.ShopActivity;
 import com.fourdome.bean.ShopBean;

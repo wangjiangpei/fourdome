@@ -27,10 +27,10 @@ import cn.bmob.v3.datatype.BmobFile;
 import cn.bmob.v3.listener.UpdateListener;
 import cn.bmob.v3.listener.UploadFileListener;
 
+import com.example.slidingmenu.BaseApplication;
 import com.example.slidingmenu.BaseFragment;
 import com.example.slidingmenu.R;
 import com.example.slidingmenu.SigninShopActivity;
-import com.fourdome.activity.BaseApplication;
 import com.fourdome.bean.User;
 import com.fourdome.bitmaputils.ImageUtils;
 

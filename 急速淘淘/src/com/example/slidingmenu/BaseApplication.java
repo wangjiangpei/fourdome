@@ -1,11 +1,12 @@
-package com.fourdome.activity;
+package com.example.slidingmenu;
 
 import java.util.List;
 
+import c.b.BP;
 import cn.bmob.v3.Bmob;
-import cn.bmob.v3.BmobUser;
 import cn.bmob.v3.datatype.BmobGeoPoint;
 
+import com.baidu.mapapi.SDKInitializer;
 import com.example.fragment.MainActivity;
 import com.fourdome.bean.ShopBean;
 import com.fourdome.bean.User;
@@ -23,6 +24,8 @@ public class BaseApplication extends Application {
 	@Override
 	public void onCreate() {
 		super.onCreate();
-		Bmob.initialize(this, "3b874ca04c134fe3f177d4b54d5f63d8");
+		//SDKInitializer.initialize(this);//实例化百度mapSDK
+		Bmob.initialize(this, "3b874ca04c134fe3f177d4b54d5f63d8");//Bmom初始化
+		BP.init(this, "3b874ca04c134fe3f177d4b54d5f63d8");//支付SDK初始化
 	}
 }
