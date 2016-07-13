@@ -1,0 +1,253 @@
+package com.whzy.fragment;
+
+import java.util.ArrayList;
+import java.util.List;
+
+import retrofit.Callback;
+import retrofit.RetrofitError;
+import retrofit.client.Response;
+import android.content.BroadcastReceiver;
+import android.content.Context;
+import android.content.Intent;
+import android.content.IntentFilter;
+import android.os.Bundle;
+import android.view.LayoutInflater;
+import android.view.View;
+import android.view.ViewGroup;
+import android.widget.AdapterView;
+import android.widget.AdapterView.OnItemLongClickListener;
+import android.widget.ListView;
+
+import com.handmark.pulltorefresh.library.ILoadingLayout;
+import com.handmark.pulltorefresh.library.PullToRefreshBase;
+import com.handmark.pulltorefresh.library.PullToRefreshBase.OnRefreshListener2;
+import com.handmark.pulltorefresh.library.PullToRefreshListView;
+import com.whzy.adapter.TurnRankAdapter;
+import com.whzy.config.Cfg;
+import com.whzy.info.BaseInfo;
+import com.whzy.info.RankInfo;
+import com.whzy.model.ModelBroadCast;
+import com.whzy.net.BaseNet;
+import com.whzy.sounds.qmhsy.R;
+import com.whzy.view.ShareView;
+
+/**
+ * 右面侧滑菜单功能界面
+ * */
+public class MainRightBaseTwoFragment extends BaseFragment implements
+		OnRefreshListener2<ListView> {
+
+	private Context context;
+	// 网络访问完后交给下拉刷新(1)处理还是点击加载(2)处理
+	private int loadOrRefresh = 1;
+	private boolean toLoadData = false;
+	private PullToRefreshListView listview;
+	private TurnRankAdapter adapter;
+	private List<RankInfo> list = new ArrayList<RankInfo>();
+	private String rankType = "0";
+	private int start_index_add = 10;
+	private int start_index = 1;
+	private long lastRefreshRankData = 0L;
+	private boolean haveMoreData = false;
+
+	@Override
+	public View onCreateView(LayoutInflater inflater, ViewGroup container,
+			Bundle savedInstanceState) {
+		context = getActivity();
+		View view = inflater.inflate(R.layout.right_fragment_ranklsit_layout,
+				container, false);
+		initView(view);
+		loadOrRefresh = 1;
+		start_index = 1;
+		toLoadDta();
+		toLoadData = false;
+		IntentFilter intentFilter = new IntentFilter();
+		intentFilter.addAction(ModelBroadCast.RefreshRightMenuData);
+		intentFilter.addAction(ModelBroadCast.TurnSoundId);
+		intentFilter.addAction(ModelBroadCast.LoveSoundId);
+		intentFilter.addAction(ModelBroadCast.StopMedia);
+		intentFilter.addAction(ModelBroadCast.CompletionMedia);
+		intentFilter.addAction(ModelBroadCast.StartMedia);
+		intentFilter.addAction(ModelBroadCast.ErrorMedia);
+		getActivity().registerReceiver(myReceiver, intentFilter);
+		lastRefreshRankData = System.currentTimeMillis();
+		return view;
+	}
+
+	private void initView(View view) {
+		// --------------------------------下拉上拉刷新的控件初始化并添加监听--------------------
+		listview = (PullToRefreshListView) view
+				.findViewById(R.id.ranklsit_layout_listview);
+		adapter = new TurnRankAdapter(context, list, "TurnRankAdapterTwo");
+		listview.setAdapter(adapter);
+		listview.setOnItemLongClickListener(new OnItemLongClickListener() {
+			public boolean onItemLongClick(AdapterView<?> parent, View view,
+					int position, long id) {
+				ShareView shareView = new ShareView(context, Cfg.BaseUrl
+						+ Cfg.SoundSharePage + list.get(position).getSoundId(),
+						list.get(position).getSoundUrl(), "/"
+								+ list.get(position).getSex());
+				shareView.show();
+				return true;
+			}
+		});
+		listview.setOnRefreshListener(this);
+		initIndicator();
+	}
+
+	private void initIndicator() {
+		ILoadingLayout startLabels = listview
+				.getLoadingLayoutProxy(true, false);
+		startLabels.setPullLabel("下拉刷新...");// 刚下拉时，显示的提示
+		startLabels.setRefreshingLabel("正在刷新...");// 刷新时
+		startLabels.setReleaseLabel("放开以刷新...");// 下来达到一定距离时，显示的提示
+
+		ILoadingLayout endLabels = listview.getLoadingLayoutProxy(false, true);
+		endLabels.setPullLabel("上拉加载更多...");// 刚下拉时，显示的提示
+		endLabels.setRefreshingLabel("正在加载...");// 刷新时
+		endLabels.setReleaseLabel("放开以加载...");// 下来达到一定距离时，显示的提示
+	}
+
+	private void toLoadDta() {
+		BaseNet.getRank(rankType, start_index_add + "", start_index + "",
+				callBack);
+	}
+
+	Callback<BaseInfo<List<RankInfo>>> callBack = new Callback<BaseInfo<List<RankInfo>>>() {
+
+		@Override
+		public void success(BaseInfo<List<RankInfo>> arg0, Response arg1) {
+			if (arg0 == null) {
+				reset();
+				ToastMsg("排行榜数据出现错误");
+				return;
+			}
+			if (arg0.getObj() == null) {
+				reset();
+				haveMoreData = false;
+				ToastMsg("没有更多的数据");
+				return;
+			}
+			if (arg0.getObj().size() < start_index_add) {
+				haveMoreData = false;
+				// ToastMsg("没有更多的数据");
+			} else if (arg0.getObj().size() >= start_index_add) {
+				haveMoreData = true;
+			}
+			if (loadOrRefresh == 1) {
+				list.removeAll(list);
+			}
+			list.addAll(arg0.getObj());
+			adapter.notifyDataSetChanged();
+			reset();
+		}
+
+		@Override
+		public void failure(RetrofitError arg0) {
+			reset();
+			ToastMsg("访问出错了");
+		}
+
+		public void reset() {
+			listview.postDelayed(new Runnable() {
+				public void run() {
+					listview.onRefreshComplete();
+				}
+			}, 500);
+			toLoadData = true;// 允许再次刷新或加载
+		}
+	};
+
+	@Override
+	public void onPullDownToRefresh(PullToRefreshBase<ListView> refreshView) {
+		if (toLoadData) {// 判断是否可以刷新
+			loadOrRefresh = 1;
+			start_index = 1;
+			toLoadDta();
+			toLoadData = false;
+			lastRefreshRankData = System.currentTimeMillis();
+			return;
+		}
+		listview.postDelayed(new Runnable() {
+			public void run() {
+				listview.onRefreshComplete();
+			}
+		}, 500);
+	}
+
+	@Override
+	public void onPullUpToRefresh(PullToRefreshBase<ListView> refreshView) {
+		if (toLoadData) {// 判断是否可以加载
+			if (haveMoreData) {
+				loadOrRefresh = 2;
+				start_index += start_index_add;
+				toLoadDta();
+				toLoadData = false;
+				return;
+			} else {
+				ToastMsg("没有更多的数据");
+			}
+		}
+		listview.postDelayed(new Runnable() {
+			public void run() {
+				listview.onRefreshComplete();
+			}
+		}, 500);
+	}
+
+	@Override
+	public void onDestroy() {
+		try {
+			getActivity().unregisterReceiver(myReceiver);
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+		super.onDestroy();
+	}
+
+	/**
+	 * 接收到需要刷新数据的广播
+	 * */
+	BroadcastReceiver myReceiver = new BroadcastReceiver() {
+		public void onReceive(Context context, Intent intent) {
+			if (ModelBroadCast.RefreshRightMenuData.equals(intent.getAction())) {
+				if ((System.currentTimeMillis() - lastRefreshRankData) > 300000) {
+					loadOrRefresh = 1;
+					start_index = 1;
+					toLoadDta();
+					toLoadData = false;
+					lastRefreshRankData = System.currentTimeMillis();
+				}
+			} else if (ModelBroadCast.TurnSoundId.equals(intent.getAction())) {
+				if ("TurnRankAdapterOne".equals(intent.getStringExtra("from"))) {
+					adapter.notifyDataSetChanged();
+				}
+			} else if (ModelBroadCast.LoveSoundId.equals(intent.getAction())) {
+				adapter.notifyDataSetChanged();
+			} else if (ModelBroadCast.CompletionMedia
+					.equals(intent.getAction())) {
+				if (intent.getStringExtra("className").equals(
+						"TurnRankAdapterTwo")) {
+					adapter.setCurrorStop();
+					adapter.notifyDataSetChanged();
+				}
+			} else if (ModelBroadCast.ErrorMedia.equals(intent.getAction())) {
+				if (intent.getStringExtra("className").equals(
+						"TurnRankAdapterTwo")) {
+					adapter.setCurrorStop();
+					adapter.notifyDataSetChanged();
+				}
+			} else if (ModelBroadCast.StopMedia.equals(intent.getAction())) {
+				if (intent.getStringExtra("className").equals("MainActivity")) {
+					adapter.setCurrorStop();
+					adapter.notifyDataSetChanged();
+				} else if (intent.getStringExtra("className").equals(
+						"TurnRankAdapterOne")) {
+					adapter.setCurrorStop();
+					adapter.notifyDataSetChanged();
+				}
+			}
+		}
+	};
+
+}

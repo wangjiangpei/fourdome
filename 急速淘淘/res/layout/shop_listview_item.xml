@@ -1,0 +1,64 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="horizontal" >
+
+    <!-- 这里是商店listview的子布局 -->
+    <ImageView
+        android:id="@+id/shop_listview_item_head"
+        android:layout_width="80dp"
+        android:layout_height="80dp"
+        android:src="@drawable/ic_launcher" />
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="80dp"
+        android:layout_marginLeft="5dp"
+        android:orientation="vertical" >
+
+        <RelativeLayout
+            android:layout_width="match_parent"
+            android:layout_height="0dp"
+            android:layout_weight="1" >
+		
+            <!-- 名 -->
+
+            <TextView
+                android:id="@+id/shop_listview_item_name"
+                android:layout_width="wrap_content"
+                android:layout_height="match_parent"
+                android:gravity="center_vertical"
+                android:text="华联超市"
+                android:textSize="18sp" />
+            <!-- 距离 -->
+
+            <TextView
+                android:id="@+id/shop_listview_item_range"
+                android:layout_width="wrap_content"
+                android:layout_height="match_parent"
+                android:layout_alignParentRight="true"
+                android:gravity="center_vertical"
+                android:text="距离0.1公里" />
+        </RelativeLayout>
+        <!-- 简介 -->
+
+        <TextView
+            android:id="@+id/shop_listview_item_intro"
+            android:layout_width="wrap_content"
+            android:layout_height="0dp"
+            android:layout_weight="1"
+            android:gravity="center_vertical"
+            android:text="开业大酬宾" />
+
+        <!-- 派送范围 -->
+
+        <TextView
+            android:id="@+id/shop_listview_item_send"
+            android:layout_width="wrap_content"
+            android:layout_height="0dp"
+            android:layout_weight="1"
+            android:gravity="center_vertical"
+            android:text="派送范围50公里" />
+    </LinearLayout>
+
+</LinearLayout>

@@ -1,0 +1,244 @@
+package com.whzy.fragment;
+
+import java.util.ArrayList;
+import java.util.List;
+
+import com.whzy.model.Model;
+import com.whzy.sounds.qmhsy.R;
+import com.whzy.tools.HLog;
+
+import android.content.Context;
+import android.graphics.Color;
+import android.graphics.Matrix;
+import android.os.Bundle;
+import android.support.v4.app.Fragment;
+import android.support.v4.app.FragmentStatePagerAdapter;
+import android.support.v4.view.ViewPager;
+import android.support.v4.view.ViewPager.OnPageChangeListener;
+import android.view.LayoutInflater;
+import android.view.View;
+import android.view.View.OnClickListener;
+import android.view.ViewGroup;
+import android.view.ViewTreeObserver;
+import android.view.ViewTreeObserver.OnPreDrawListener;
+import android.view.animation.Animation;
+import android.view.animation.TranslateAnimation;
+import android.widget.ImageView;
+import android.widget.LinearLayout;
+import android.widget.RelativeLayout;
+import android.widget.TextView;
+
+/**
+ * 右面侧滑菜单功能界面
+ */
+public class MainRightFragment extends BaseFragment implements OnClickListener {
+
+	@SuppressWarnings("unused")
+	private Context context;
+	private RelativeLayout main_right_fragment;
+	private LinearLayout main_right_fragment_titlelayout;
+	private LinearLayout one, two;
+	private TextView oneTxt, twoTxt;
+	private List<MainRightChildFragment> list = new ArrayList<MainRightChildFragment>();// 相当于数据源
+	private android.support.v4.view.ViewPager mViewPager;
+	private FragmentStatePagerAdapter pagerAdapter = null;// 数据源和viewpager之间的桥梁
+	private MainRightChildFragment oneFragment;
+	private MainRightChildFragment twoFragment;
+	private ImageView cursor;// 动画图片
+	private int offset = 0;// 动画图片偏移量
+	private int bmpW;// 动画图片宽度
+	private int parenceWidth;// 右边侧栏总宽度
+	private int currentItem; // 当前选项卡
+	Animation animation = null;
+
+	@Override
+	public View onCreateView(LayoutInflater inflater, ViewGroup container,
+			Bundle savedInstanceState) {
+		context = getActivity();
+		View view = inflater.inflate(R.layout.hsy_main_right_fragment, null);
+		initView(view);
+		return view;
+	}
+
+	private void initView(View view) {
+		main_right_fragment = (RelativeLayout) view
+				.findViewById(R.id.main_right_fragment);
+
+		ViewTreeObserver vto = main_right_fragment.getViewTreeObserver();
+		OnPreDrawListener odl = new ViewTreeObserver.OnPreDrawListener() {
+			public boolean onPreDraw() {
+				// int height = metroLayout.getMeasuredHeight();
+				parenceWidth = main_right_fragment.getMeasuredWidth();
+				main_right_fragment.getViewTreeObserver()
+						.removeOnPreDrawListener(this);
+				initImageView(main_right_fragment);
+				return true;
+			}
+		};
+		vto.addOnPreDrawListener(odl);
+
+		main_right_fragment_titlelayout = (LinearLayout) view
+				.findViewById(R.id.main_right_fragment_titlelayout);
+
+		mViewPager = (ViewPager) view
+				.findViewById(R.id.main_right_fragmenttwo_FramePager);
+		// 查找以linearlayout为按钮作用的控件
+		one = (LinearLayout) view.findViewById(R.id.main_right_fragmentone_Btn);
+		two = (LinearLayout) view.findViewById(R.id.main_right_fragmenttwo_Btn);
+		// 查找linearlayout中的textview
+		oneTxt = (TextView) view.findViewById(R.id.main_right_fragmentone_Txt);
+		twoTxt = (TextView) view.findViewById(R.id.main_right_fragmenttwo_Txt);
+
+		main_right_fragment_titlelayout.setPadding(0, Model.StatusBarHeight, 0,
+				0);
+
+		createView();
+
+		pagerAdapter = new FragmentStatePagerAdapter(getChildFragmentManager()) {
+			@Override
+			public int getCount() {
+				return list.size();
+			}
+
+			@Override
+			public Fragment getItem(int position) {
+				return list.get(position);
+			}
+		};
+		// 设置我们的adapter
+		mViewPager.setAdapter(pagerAdapter);
+
+		one.setOnClickListener(this);
+		two.setOnClickListener(this);
+
+		// 设置viewpager界面切换监听,监听viewpager切换第几个界面以及滑动的
+		mViewPager.setOnPageChangeListener(myOnPageChangeListener);
+
+	}
+
+	private void createView() {
+		oneFragment = new MainRightChildFragment();
+		oneFragment.setTag(0);
+		twoFragment = new MainRightChildFragment();
+		twoFragment.setTag(1);
+		list.add(oneFragment);
+		list.add(twoFragment);
+	}
+
+	@Override
+	public void onClick(View v) {
+		int mBtnid = v.getId();
+		switch (mBtnid) {
+		case R.id.main_right_fragmentone_Btn:
+			// //设置我们的viewpager跳转那个界面0这个参数和我们的list相关,相当于list里面的下标
+			if (mViewPager.getCurrentItem() != 0) {
+				mViewPager.setCurrentItem(0, true);
+				oneTxt.setTextColor(getResources().getColor(R.color.title_bg));
+				twoTxt.setTextColor(Color.BLACK);
+			}
+			break;
+		case R.id.main_right_fragmenttwo_Btn:
+			if (mViewPager.getCurrentItem() != 1) {
+				mViewPager.setCurrentItem(1, true);
+				twoTxt.setTextColor(getResources().getColor(R.color.title_bg));
+				oneTxt.setTextColor(Color.BLACK);
+			}
+			break;
+
+		}
+	}
+
+	private OnPageChangeListener myOnPageChangeListener = new OnPageChangeListener() {
+
+		@SuppressWarnings("unused")
+		int oneInt = offset * 2 + bmpW;// 页卡1 -> 页卡2 偏移量
+
+		// arg0 获取 viewpager里面的界面切换到第几个的
+		@Override
+		public void onPageSelected(int arg0) {
+			// // 先清除按钮样式
+			// initTopBtn();
+			// // 按照对应的view的tag来判断到底切换到哪个界面。
+			// // 更改对应的button状态
+			// int flag = list.get(arg0).getThisTag();
+			// if (flag == 0) {
+			// oneTxt.setTextColor(Color.parseColor("#000000"));
+			// one.setBackgroundColor(Color.parseColor("#FFFFFF"));
+			// } else if (flag == 1) {
+			// twoTxt.setTextColor(Color.parseColor("#000000"));
+			// two.setBackgroundColor(Color.parseColor("#FFFFFF"));
+			// }
+
+			// 当滑动时，顶部的imageView是通过animation缓慢的滑动
+			switch (arg0) {
+			case 0:
+				if (currentItem == 1) {
+					animation = new TranslateAnimation(offset * 2 + bmpW, 0, 0,
+							0);
+				} else if (currentItem == 2) {
+					animation = new TranslateAnimation(offset * 4 + 2 * bmpW,
+							0, 0, 0);
+				}
+				oneTxt.setTextColor(getResources().getColor(R.color.title_bg));
+				twoTxt.setTextColor(Color.BLACK);
+				break;
+			case 1:
+				if (currentItem == 0) {
+					animation = new TranslateAnimation(0, offset * 2 + bmpW, 0,
+							0);
+				} else if (currentItem == 2) {
+					animation = new TranslateAnimation(4 * offset + 2 * bmpW,
+							offset * 2 + bmpW, 0, 0);
+				}
+				twoTxt.setTextColor(getResources().getColor(R.color.title_bg));
+				oneTxt.setTextColor(Color.BLACK);
+				break;
+			}
+			currentItem = arg0;
+			animation.setDuration(500);
+			animation.setFillAfter(true);
+			cursor.startAnimation(animation);
+		}
+
+		/**
+		 * 监听页面滑动的 arg0 表示当前滑动的view arg1 表示滑动的百分比 arg2 表示滑动的距离
+		 */
+		@Override
+		public void onPageScrolled(int arg0, float arg1, int arg2) {
+		}
+
+		/**
+		 * 监听滑动状态 arg0 表示我们的滑动状态 0:默认状态 1:滑动状态 2:滑动停止
+		 */
+		@Override
+		public void onPageScrollStateChanged(int arg0) {
+
+		}
+	};
+
+	@Override
+	public void onSaveInstanceState(Bundle outState) {
+		// super.onSaveInstanceState(outState);
+	}
+
+	/**
+	 * 初始化动画
+	 */
+	private void initImageView(View view) {
+		cursor = (ImageView) view.findViewById(R.id.cursor);
+		bmpW = parenceWidth / 2 - 10;// 游标宽度
+		HLog.i("bmpW" + bmpW);
+		RelativeLayout.LayoutParams linearParams = (RelativeLayout.LayoutParams) cursor
+				.getLayoutParams();
+		linearParams.width = bmpW;// 设置动画游标的宽度为侧栏总宽度的一半减去10个像素
+		cursor.setLayoutParams(linearParams);
+
+		offset = (parenceWidth / 2 - bmpW) / 2;// 计算偏移量
+		HLog.i("offset" + offset);
+		Matrix matrix = new Matrix();
+		matrix.postTranslate(offset, 0);
+
+		cursor.setImageMatrix(matrix);// 设置动画初始位置
+	}
+
+}

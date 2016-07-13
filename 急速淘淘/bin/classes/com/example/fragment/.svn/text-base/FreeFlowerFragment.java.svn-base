@@ -1,0 +1,192 @@
+package com.whzy.fragment;
+
+import java.util.Calendar;
+
+import com.whzy.config.Cfg;
+import com.whzy.info.BaseInfo;
+import com.whzy.info.FlowerLeftInfo;
+import com.whzy.model.ModelBroadCast;
+import com.whzy.model.PreferModel;
+import com.whzy.net.BaseNet;
+import com.whzy.sounds.qmhsy.R;
+import com.whzy.tools.HLog;
+import com.whzy.tools.PreferUtil;
+import com.whzy.tools.SystemTools;
+import com.whzy.view.ShareView;
+
+import android.content.Context;
+import android.content.Intent;
+import android.net.Uri;
+import android.os.Bundle;
+import android.text.Html;
+import android.view.LayoutInflater;
+import android.view.View;
+import android.view.View.OnClickListener;
+import android.view.ViewGroup;
+import android.widget.Button;
+import android.widget.TextView;
+import android.widget.Toast;
+import retrofit.Callback;
+import retrofit.RetrofitError;
+import retrofit.client.Response;
+
+/**
+ * 免费获得鲜花界面
+ * */
+public class FreeFlowerFragment extends BaseFragment implements OnClickListener {
+
+	private Context context;
+	/** 登录奖励方案提示文字 */
+	private TextView free_flower_logintext;
+	/** 人气奖励方案提示文字 */
+	private TextView free_flower_sentimenttext;
+	/** 分享软件奖励方案提示文字 */
+	private TextView free_flower_sharetext;
+	/** 评论软件奖励方案提示文字 */
+	private TextView free_flower_commentstext;
+	/** 分享软件按钮 */
+	private Button free_flower_sharebtn;
+	/** 评论软件按钮 */
+	private Button free_flower_commentsbtn;
+	/** 用户打开市场起始时间 */
+	private long beginTime=0;
+	final private int COMMENT_RQUEST_CODE=1;
+	/** 记录上次评论时间，每个用户最多有三次评论奖励，客户端简单控制时间间隔大于一天*/
+	final private String LAST_COMMENT_TIME="lctime";
+	@Override
+	public View onCreateView(LayoutInflater inflater, ViewGroup container,
+			Bundle savedInstanceState) {
+		context = getActivity();
+		View view = inflater.inflate(R.layout.activity_free_get_flower,
+				container, false);
+		initView(view);
+		return view;
+	}
+
+	private void initView(View view) {
+		free_flower_logintext = (TextView) view
+				.findViewById(R.id.free_flower_logintext);
+		free_flower_sentimenttext = (TextView) view
+				.findViewById(R.id.free_flower_sentimenttext);
+		free_flower_sharetext = (TextView) view
+				.findViewById(R.id.free_flower_sharetext);
+		free_flower_commentstext = (TextView) view
+				.findViewById(R.id.free_flower_commentstext);
+		free_flower_sharebtn = (Button) view
+				.findViewById(R.id.free_flower_sharebtn);
+		free_flower_commentsbtn = (Button) view
+				.findViewById(R.id.free_flower_commentsbtn);
+
+		free_flower_sharebtn.setOnClickListener(this);
+		free_flower_commentsbtn.setOnClickListener(this);
+
+		free_flower_logintext.setText(Html.fromHtml(logintext));
+		free_flower_sentimenttext.setText(Html.fromHtml(sentimenttext));
+		free_flower_sharetext.setText(Html.fromHtml(sharetext));
+		free_flower_commentstext.setText(Html.fromHtml(commentstext));
+	}
+
+	@Override
+	public void onClick(View v) {
+		switch (v.getId()) {
+		case R.id.free_flower_sharebtn:// 分享软件的按钮
+			ShareView shareView = new ShareView(context, Cfg.APPMainUrl, null,
+					null);
+			shareView.setTitle("分享软件");
+			shareView.show();
+			break;
+		case R.id.free_flower_commentsbtn:// 评论软件的按钮
+			toComment();
+			break;
+
+		default:
+			break;
+		}
+
+	}
+
+	/** 评论软件 */
+	private void toComment() {
+		try {
+			Uri uri = Uri.parse("market://details?id=" + getActivity().getPackageName());
+			Intent intent = new Intent(Intent.ACTION_VIEW, uri);
+			startActivityForResult(intent, COMMENT_RQUEST_CODE);;
+		} catch (Exception e) {
+			try {
+				Uri uri = Uri.parse("http://market.android.com/details?id=" + getActivity().getPackageName());
+				Intent intent = new Intent(Intent.ACTION_VIEW, uri);
+				startActivityForResult(intent, COMMENT_RQUEST_CODE);;
+			} catch (Exception ee) {
+				
+			}
+		}
+		beginTime=System.currentTimeMillis();
+		
+	}
+
+	/** 评论软件后请求服务器增加鲜花的回调 */
+	Callback<BaseInfo<FlowerLeftInfo>> callBack = new Callback<BaseInfo<FlowerLeftInfo>>() {
+		public void success(BaseInfo<FlowerLeftInfo> arg0, Response arg1) {
+			if (arg0 == null || !"0".equals(arg0.getRet())) {
+				ToastMsg("抱歉，评论奖励获取失败，请重试");
+				return;
+			}
+			if (arg0.getObj() == null) {
+				ToastMsg("抱歉，评论奖励获取失败，请重试");
+				return;
+			}
+			PreferUtil.setParam(context, PreferModel.User_flower_left, arg0
+					.getObj().getFlowerLeft());
+			if ("0".equals(arg0.getObj().getAmount())) {
+				ToastMsg("评论成功，最多只能获得3次评论奖励");
+			} else {
+				ToastMsg("评论成功，此次为您增加鲜花：" + arg0.getObj().getAmount() + "朵");
+				PreferUtil.setParam(getActivity(), LAST_COMMENT_TIME, System.currentTimeMillis());
+			}
+			Intent intent1 = new Intent(ModelBroadCast.ChangeProfile);
+			context.sendBroadcast(intent1);
+		}
+
+		public void failure(RetrofitError arg0) {
+			ToastMsg("请求服务器失败");
+		}
+	};
+
+	@Override
+	public void onSaveInstanceState(Bundle outState) {
+		// super.onSaveInstanceState(outState);
+	}
+
+	/**
+	 * 点击评论返回当前页面，检测时间间隔如果大于30秒则进行评论
+	 */
+	@Override
+	public void onActivityResult(int requestCode, int resultCode, Intent data) {
+		super.onActivityResult(requestCode, resultCode, data);
+		long duration = System.currentTimeMillis() - beginTime;
+		if (duration > 20 * 1000) {//大于20秒
+			long lastCommentTime = (Long) PreferUtil.getParam(getActivity(), LAST_COMMENT_TIME, new Long(0));
+			int today = Calendar.getInstance().get(Calendar.DAY_OF_MONTH);// 今天的日期
+			Calendar calendar = Calendar.getInstance();
+			calendar.setTimeInMillis(lastCommentTime);
+			int lastCommentDay = calendar.get(Calendar.DAY_OF_MONTH);
+			HLog.i("t " + today + " l " + lastCommentDay);
+			if (today == lastCommentDay) {
+				Toast.makeText(getActivity(), "一天只能获取一次评论奖励", Toast.LENGTH_LONG).show();
+			}
+			{
+				// 评论达到要求后请求服务器增加鲜花的请求
+				BaseNet.commentAward(SystemTools.getDeviceToken(context), callBack);
+			}
+		} else//小于20秒
+		{
+			Toast.makeText(getActivity(), "没有检测到您的评论，五星好评获取更多奖励", Toast.LENGTH_LONG).show();
+		}
+	}
+
+	private String logintext = "每天首次登录可获得<font color=\"#ff0000\">30</font>朵鲜花。";
+	private String sentimenttext = "发布优美的歌声来获得其他用户捧场，每个捧场增加<font color=\"#ff0000\">3</font>个魅力值和<font color=\"#ff0000\">1</font>朵鲜花，进入排行榜可以快速获得魅力值和鲜花。<br/>歌声获得转身可增加<font color=\"#ff0000\">1</font>个魅力值，但不增加鲜花。<br/>聊天中获得对方的鲜花礼物直接存入您的鲜花账户。";
+	private String sharetext = "目前活动推广期间，每分享一次可获得<font color=\"#ff0000\">20</font>朵鲜花，五种分享每天都有一次奖励，即每天最多可获得<font color=\"#ff0000\">100</font>朵鲜花。<br/>此奖励规则对软件中任意一处的分享均有效。";
+	private String commentstext = "在应用市场中进行五星好评可获得<font color=\"#ff0000\">30</font>朵鲜花，每天最多1次评论奖励，每个用户总共可获得3次评论奖励";
+
+}

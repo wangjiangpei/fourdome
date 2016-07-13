@@ -1,0 +1,21 @@
+package com.whzy.fragment;
+
+import android.support.v4.app.Fragment;
+import android.widget.Toast;
+
+/**
+ * BaseFragment
+ * */
+public abstract class BaseFragment extends Fragment {
+
+	private Toast mT;
+
+	public void ToastMsg(String msg) {
+		if (mT == null) {
+			mT = Toast.makeText(getActivity(), msg, Toast.LENGTH_SHORT);
+		}
+		mT.setText(msg);
+		mT.show();
+	}
+
+}

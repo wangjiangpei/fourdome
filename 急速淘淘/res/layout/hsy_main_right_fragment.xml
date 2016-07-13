@@ -1,0 +1,101 @@
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/main_right_fragment"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="#ff0000"
+    android:orientation="vertical"
+    android:paddingTop="20dp" >
+
+    <HorizontalScrollView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="40dp"
+        android:background="#fff" >
+
+        <LinearLayout
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal" >
+
+            <TextView
+                android:id="@+id/type1"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginLeft="10dp"
+                android:text="水果蔬菜" />
+
+            <TextView
+                android:id="@+id/type2"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginLeft="10dp"
+                android:text="海鲜水产" />
+
+            <TextView
+                android:id="@+id/type3"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginLeft="10dp"
+                android:text="猪羊牛肉" />
+
+            <TextView
+                android:id="@+id/type4"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginLeft="10dp"
+                android:text="冷冻食品" />
+
+            <TextView
+                android:id="@+id/type5"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginLeft="10dp"
+                android:text="中外名酒" />
+
+            <TextView
+                android:id="@+id/type6"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginLeft="10dp"
+                android:text="小型家电" />
+
+            <TextView
+                android:id="@+id/type7"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginLeft="10dp"
+                android:text="个护化妆" />
+
+            <TextView
+                android:id="@+id/type8"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginLeft="10dp"
+                android:text="时尚女装" />
+
+            <TextView
+                android:id="@+id/type9"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginLeft="10dp"
+                android:text="时尚男装" />
+
+            <TextView
+                android:id="@+id/type10"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginLeft="10dp"
+                android:text="男女内衣" />
+        </LinearLayout>
+    </HorizontalScrollView>
+
+    <GridView
+        android:id="@+id/right_gridview"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:verticalSpacing="10dp"
+        android:numColumns="2" 
+        android:background="#fff" />
+
+</LinearLayout>

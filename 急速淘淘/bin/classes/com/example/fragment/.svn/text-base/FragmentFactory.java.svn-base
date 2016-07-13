@@ -1,0 +1,102 @@
+package com.whzy.fragment;
+
+import com.whzy.sounds.qmhsy.R;
+
+import android.annotation.SuppressLint;
+import android.support.v4.app.Fragment;
+import android.support.v4.app.FragmentTransaction;
+
+/**
+ * FragmentFactory
+ */
+@SuppressLint("Recycle")
+public class FragmentFactory {
+
+	private static MainRightBaseOneFragment MainRightBaseOneFragment = null;
+	private static MainRightBaseTwoFragment MainRightBaseTwoFragment = null;
+	private static MainRightBaseThreeFragment MainRightBaseThreeFragment = null;
+	private static MainRightBaseFourFragment MainRightBaseFourFragment = null;
+	private static Fragment fragment1 = null;
+	private static Fragment fragment2 = null;
+	private static FragmentTransaction transaction1;
+	private static FragmentTransaction transaction2;
+	private static int position1 = -1;
+	private static int position2 = -1;
+
+	/**
+	 * FragmentFactory 设置那个Fragment添加到页面上
+	 */
+	public static void setFragmentOne(int checkedId, Fragment fragment) {
+		transaction1 = fragment.getChildFragmentManager().beginTransaction();
+		if (fragment1 != null) {
+			transaction1.hide(fragment1);
+			// transaction.replace(R.id.main_right_fragmenttwo_FramePager,
+			// fragment);
+		}
+		switch (checkedId) {
+		case 1:
+			if (MainRightBaseOneFragment == null) {
+				MainRightBaseOneFragment = new MainRightBaseOneFragment();
+				transaction1.add(R.id.main_right_fragmenttwo_FramePager,
+						MainRightBaseOneFragment);
+			}
+			fragment1 = MainRightBaseOneFragment;
+			break;
+		case 2:
+			if (MainRightBaseTwoFragment == null) {
+				MainRightBaseTwoFragment = new MainRightBaseTwoFragment();
+				transaction1.add(R.id.main_right_fragmenttwo_FramePager,
+						MainRightBaseTwoFragment);
+			}
+			fragment1 = MainRightBaseTwoFragment;
+			break;
+		}
+		if (fragment1 != null) {
+			transaction1.show(fragment1);
+			transaction1.commit();
+		}
+		position1 = checkedId;
+	}
+
+	/**
+	 * FragmentFactory 设置那个Fragment添加到页面上
+	 */
+	public static void setFragmentTwo(int checkedId, Fragment fragment) {
+		transaction2 = fragment.getChildFragmentManager().beginTransaction();
+		if (fragment2 != null) {
+			transaction2.hide(fragment2);
+		}
+		switch (checkedId) {
+		case 3:
+			if (MainRightBaseThreeFragment == null) {
+				MainRightBaseThreeFragment = new MainRightBaseThreeFragment();
+				transaction2.add(R.id.main_right_fragmenttwo_FramePager,
+						MainRightBaseThreeFragment);
+			}
+			fragment2 = MainRightBaseThreeFragment;
+			break;
+		case 4:
+			if (MainRightBaseFourFragment == null) {
+				MainRightBaseFourFragment = new MainRightBaseFourFragment();
+				transaction2.add(R.id.main_right_fragmenttwo_FramePager,
+						MainRightBaseFourFragment);
+			}
+			fragment2 = MainRightBaseFourFragment;
+			break;
+		}
+		if (fragment2 != null) {
+			transaction2.show(fragment2);
+			transaction2.commit();
+		}
+		position2 = checkedId;
+	}
+
+	public static int getFragmentOne() {
+		return position1;
+	}
+
+	public static int getFragmentTwo() {
+		return position2;
+	}
+
+}

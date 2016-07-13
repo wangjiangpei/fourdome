@@ -1,0 +1,130 @@
+package com.whzy.fragment;
+
+import com.whzy.sounds.qmhsy.R;
+
+import android.annotation.SuppressLint;
+import android.content.Context;
+import android.graphics.Color;
+import android.os.Bundle;
+import android.view.LayoutInflater;
+import android.view.View;
+import android.view.View.OnClickListener;
+import android.view.ViewGroup;
+import android.widget.LinearLayout;
+import android.widget.TextView;
+
+/**
+ * 右侧侧滑菜单的子界面---即转身榜和魅力榜两个tab的界面
+ * */
+@SuppressLint("CommitTransaction")
+public class MainRightChildFragment extends BaseFragment implements
+		OnClickListener {
+
+	@SuppressWarnings("unused")
+	private Context context;
+	private int thisTag = -1;
+	private LinearLayout ribang, zongbang;
+	private TextView ribangTxt, zongbangTxt;
+
+	@Override
+	public View onCreateView(LayoutInflater inflater, ViewGroup container,
+			Bundle savedInstanceState) {
+		context = getActivity();
+		View view = inflater.inflate(R.layout.hsy_main_right_child_fragment,
+				null);
+		initView(view);
+		return view;
+	}
+
+	private void initView(View view) {
+		// 查找以linearlayout为按钮作用的控件
+		ribang = (LinearLayout) view
+				.findViewById(R.id.main_right_fragmentone_Btn);
+		zongbang = (LinearLayout) view
+				.findViewById(R.id.main_right_fragmenttwo_Btn);
+		// 查找linearlayout中的textview
+		ribangTxt = (TextView) view
+				.findViewById(R.id.main_right_fragmentone_Txt);
+		zongbangTxt = (TextView) view
+				.findViewById(R.id.main_right_fragmenttwo_Txt);
+
+		ribang.setOnClickListener(this);
+		zongbang.setOnClickListener(this);
+
+		if (thisTag == 0) {
+			FragmentFactory.setFragmentOne(1, MainRightChildFragment.this);
+		} else {
+			FragmentFactory.setFragmentTwo(3, MainRightChildFragment.this);
+		}
+	}
+
+	@Override
+	public void onClick(View v) {
+		int mBtnid = v.getId();
+		switch (mBtnid) {
+		case R.id.main_right_fragmentone_Btn:
+			if (thisTag == 0) {
+				if (FragmentFactory.getFragmentOne() != 1) {
+					FragmentFactory.setFragmentOne(1,
+							MainRightChildFragment.this);
+					initTopBtn();
+					ribangTxt.setTextColor(Color.parseColor("#F39000"));
+					ribang.setBackgroundColor(Color.parseColor("#F6F6F6"));
+				}
+			} else {
+				if (FragmentFactory.getFragmentTwo() != 3) {
+					FragmentFactory.setFragmentTwo(3,
+							MainRightChildFragment.this);
+					initTopBtn();
+					ribangTxt.setTextColor(Color.parseColor("#F39000"));
+					ribang.setBackgroundColor(Color.parseColor("#F6F6F6"));
+				}
+			}
+
+			break;
+		case R.id.main_right_fragmenttwo_Btn:
+			if (thisTag == 0) {
+				if (FragmentFactory.getFragmentOne() != 2) {
+					FragmentFactory.setFragmentOne(2,
+							MainRightChildFragment.this);
+					initTopBtn();
+					zongbangTxt.setTextColor(Color.parseColor("#F39000"));
+					zongbang.setBackgroundColor(Color.parseColor("#F6F6F6"));
+				}
+			} else {
+				if (FragmentFactory.getFragmentTwo() != 4) {
+					FragmentFactory.setFragmentTwo(4,
+							MainRightChildFragment.this);
+					initTopBtn();
+					zongbangTxt.setTextColor(Color.parseColor("#F39000"));
+					zongbang.setBackgroundColor(Color.parseColor("#F6F6F6"));
+				}
+			}
+			break;
+
+		}
+	}
+
+	protected void initTopBtn() {
+		ribang.setBackgroundColor(Color.parseColor("#F6F6F6"));
+		zongbang.setBackgroundColor(Color.parseColor("#F6F6F6"));
+		ribangTxt.setTextColor(getResources().getColor(
+				R.color.search_bottem_two_textcolor));
+		zongbangTxt.setTextColor(getResources().getColor(
+				R.color.search_bottem_two_textcolor));
+	}
+
+	public void setTag(int thisTag) {
+		this.thisTag = thisTag;
+	}
+
+	public int getThisTag() {
+		return thisTag;
+	}
+
+	@Override
+	public void onSaveInstanceState(Bundle outState) {
+		// super.onSaveInstanceState(outState);
+	}
+
+}

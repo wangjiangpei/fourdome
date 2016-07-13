@@ -1,0 +1,199 @@
+package com.whzy.fragment;
+
+import com.nostra13.universalimageloader.core.ImageLoader;
+import com.umeng.fb.FeedbackAgent;
+import com.whzy.activity.MessageActivity;
+import com.whzy.activity.MyTurnActivity;
+import com.whzy.activity.ProfileActivity;
+import com.whzy.activity.SettingsActivity;
+import com.whzy.config.Cfg;
+import com.whzy.model.Model;
+import com.whzy.model.ModelBroadCast;
+import com.whzy.model.PreferModel;
+import com.whzy.sounds.qmhsy.R;
+import com.whzy.tools.CodeUtils;
+import com.whzy.tools.PreferUtil;
+import com.whzy.umengfeedback.UMengFeedbackActivity;
+import com.whzy.view.CircleImageView;
+
+import android.content.BroadcastReceiver;
+import android.content.Context;
+import android.content.Intent;
+import android.content.IntentFilter;
+import android.os.Bundle;
+import android.util.Log;
+import android.view.LayoutInflater;
+import android.view.View;
+import android.view.View.OnClickListener;
+import android.view.ViewGroup;
+import android.widget.ImageView;
+import android.widget.LinearLayout;
+import android.widget.TextView;
+
+/**
+ * 左侧个人中心侧滑菜单
+ * */
+public class MainLeftFragment extends BaseFragment implements OnClickListener {
+
+	// private LinearLayout main_left_fragment;
+	/** 点击出现个人中心界面 */
+	private LinearLayout left_fragment_userinfo;
+	/** 用户头像ImgageView */
+	private CircleImageView left_fragment_userhead;
+	/** 用户昵称textview */
+	private TextView left_fragment_usernick;
+	/** 用户魅力值textview */
+	private TextView left_fragment_usercharm;
+	/** 消息通知按钮 */
+	private LinearLayout left_fragment_message;
+	/** 未读消息红点 */
+	private ImageView left_fragment_message_dot;
+	/** 我的转身按钮 */
+	private LinearLayout left_fragment_wodezhuanshen;
+	/** 软件设置按钮 */
+	private LinearLayout left_fragment_settings;
+	/** 建议反馈按钮 */
+	private LinearLayout left_fragment_feedback;
+	/** ImageLoader加载图片用 */
+	ImageLoader loader = ImageLoader.getInstance();
+
+	@Override
+	public View onCreateView(LayoutInflater inflater, ViewGroup container,
+			Bundle savedInstanceState) {
+		View view = inflater.inflate(R.layout.hsy_main_left_fragment,
+				container, false);
+		initView(view);
+		initData();
+		IntentFilter intentFilter = new IntentFilter(
+				ModelBroadCast.ChangeProfile);
+		getActivity().registerReceiver(myReceiver, intentFilter);
+		return view;
+	}
+
+	private void initData() {
+		left_fragment_usernick.setText((String) PreferUtil.getParam(
+				getActivity(), PreferModel.User_nick, "好学员"));
+		left_fragment_usercharm.setText("魅力值："
+				+ (String) PreferUtil.getParam(getActivity(),
+						PreferModel.User_charm, "0"));
+		left_fragment_userhead.setImageResource(R.drawable.hsy_no_avatar);
+		String sn = (String) PreferUtil.getParam(getActivity(),
+				PreferModel.User_sn, "");
+		String avatar = (String) PreferUtil.getParam(getActivity(),
+				PreferModel.User_avatar, "");
+		if (avatar.equals("")) {
+			left_fragment_userhead.setImageResource(R.drawable.hsy_no_avatar);
+		} else {
+			String headImgUrl = Cfg.UserHead_Start
+					+ CodeUtils.getFolderBySN(sn) + Cfg.UserHead_End + avatar;
+			loader.displayImage(headImgUrl, left_fragment_userhead,
+					Model.options);
+		}
+	}
+
+	private void initView(View view) {
+		// main_left_fragment = (LinearLayout)
+		// view.findViewById(R.id.main_left_fragment);
+		left_fragment_userinfo = (LinearLayout) view
+				.findViewById(R.id.left_fragment_userinfo);
+		left_fragment_userhead = (CircleImageView) view
+				.findViewById(R.id.left_fragment_userhead);
+		left_fragment_usernick = (TextView) view
+				.findViewById(R.id.left_fragment_usernick);
+		left_fragment_usercharm = (TextView) view
+				.findViewById(R.id.left_fragment_usercharm);
+		left_fragment_message = (LinearLayout) view
+				.findViewById(R.id.left_fragment_message);
+		left_fragment_message_dot = (ImageView) view
+				.findViewById(R.id.left_fragment_message_dot);
+		left_fragment_wodezhuanshen = (LinearLayout) view
+				.findViewById(R.id.left_fragment_wodezhuanshen);
+		left_fragment_settings = (LinearLayout) view
+				.findViewById(R.id.left_fragment_settings);
+		left_fragment_feedback = (LinearLayout) view
+				.findViewById(R.id.left_fragment_feedback);
+
+		left_fragment_userinfo.setOnClickListener(this);
+		left_fragment_message.setOnClickListener(this);
+		left_fragment_wodezhuanshen.setOnClickListener(this);
+		left_fragment_settings.setOnClickListener(this);
+		left_fragment_feedback.setOnClickListener(this);
+
+		// main_left_fragment.setPadding(0, Model.StatusBarHeight, 0, 0);
+		left_fragment_userinfo.setPadding(0,
+				left_fragment_userinfo.getPaddingTop() + 50, 0,
+				left_fragment_userinfo.getPaddingBottom());
+
+	}
+
+	@Override
+	public void onClick(View arg0) {
+		Intent intent;
+		switch (arg0.getId()) {
+		case R.id.left_fragment_userinfo:// 用户信息
+			intent = new Intent(getActivity(), ProfileActivity.class);
+			startActivity(intent);
+			break;
+		case R.id.left_fragment_message:// 消息通知按钮
+			intent = new Intent(getActivity(), MessageActivity.class);
+			startActivity(intent);
+			break;
+		case R.id.left_fragment_wodezhuanshen:// 我的转身按钮
+			intent = new Intent(getActivity(), MyTurnActivity.class);
+			startActivity(intent);
+			break;
+		case R.id.left_fragment_settings:// 软件设置按钮
+			intent = new Intent(getActivity(), SettingsActivity.class);
+			startActivity(intent);
+			break;
+		case R.id.left_fragment_feedback:// 建议反馈按钮
+//			intent = new Intent(getActivity(), JianyifankuiActivity.class);
+//			startActivity(intent);
+			// 开启反馈回复推送服务
+			FeedbackAgent agent = new FeedbackAgent(getActivity());
+			// 是否打印log
+			// agent.setDebug(false);
+
+			// 当开发者回复用户反馈后，如果需要提醒用户，请在应用程序的入口Activity的OnCreate()方法中下添加sync()方法
+			agent.sync();
+
+			// 开启语音反馈
+			// new FeedbackAgent(this).openAudioFeedback();
+
+			startActivity(new Intent(getActivity(), UMengFeedbackActivity.class));
+			break;
+
+		}
+	}
+
+	/** 设置未读消息红点是否显示 */
+	public void setHaveUnReadMessage(boolean isHave) {
+		if (isHave) {
+			left_fragment_message_dot.setVisibility(View.VISIBLE);
+		} else {
+			left_fragment_message_dot.setVisibility(View.GONE);
+		}
+	}
+
+	/**
+	 * 接收到用户信息改变的广播后更新用户数据
+	 * */
+	BroadcastReceiver myReceiver = new BroadcastReceiver() {
+		public void onReceive(Context context, Intent intent) {
+			if (ModelBroadCast.ChangeProfile.equals(intent.getAction())) {
+				initData();
+				Log.e(Cfg.Log_Tag, "更新用户数据");
+			}
+		}
+	};
+
+	@Override
+	public void onDestroy() {
+		try {
+			getActivity().unregisterReceiver(myReceiver);
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+		super.onDestroy();
+	}
+}

@@ -1,0 +1,96 @@
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="#123456"
+    android:orientation="vertical" >
+
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="140sp"
+        android:layout_marginTop="20dp" >
+
+        <ImageView
+            android:id="@+id/signinshop_picture"
+            android:layout_width="80dp"
+            android:layout_height="80dp"
+            android:layout_centerInParent="true"
+            android:src="@drawable/ic_launcher" />
+    </RelativeLayout>
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:background="#fff"
+        android:orientation="vertical" >
+
+        <!-- 名 -->
+
+        <EditText
+            android:id="@+id/signinshop_name"
+            android:layout_width="match_parent"
+            android:layout_height="40dp"
+            android:background="@drawable/select_edt_slector"
+            android:gravity="center_vertical"
+            android:hint="请输入超市名字"
+            android:ems="10"
+            android:imeOptions="actionNext"
+            android:textSize="18sp" />
+
+        <!-- 简介 -->
+
+        <EditText
+            android:id="@+id/signinshop_intro"
+            android:layout_width="match_parent"
+            android:layout_height="40dp"
+            android:background="@drawable/select_edt_slector"
+            android:ems="10"
+            android:imeOptions="actionNext"
+            android:gravity="center_vertical"
+            android:hint="请输入简介" >
+            <requestFocus />
+        </EditText>
+
+        <!-- 派送范围 -->
+
+       <LinearLayout 
+           android:layout_width="match_parent"
+           android:layout_height="40dp"
+           android:orientation="horizontal"
+           >
+            <EditText
+            android:id="@+id/signinshop_send"
+            android:layout_width="0dp"
+            android:layout_weight="1"
+            android:layout_height="40dp"
+            android:background="@drawable/select_edt_slector"
+            android:hint="派送范围50公里" />
+            <TextView 
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="公里"/>
+       </LinearLayout>
+         <EditText
+            android:id="@+id/signinshop_show"
+            android:layout_width="match_parent"
+            android:layout_height="100dp"
+            android:lines="3"
+            android:background="@drawable/select_edt_slector"
+            android:hint="请输入店铺描述" />
+        <!-- 距离 -->
+
+        <TextView
+            android:id="@+id/signinshop_getlocation"
+            android:layout_width="match_parent"
+            android:layout_height="40dp"
+            android:gravity="center"
+            android:text="获取位置" />
+        <Button 
+            android:layout_marginTop="20dp"
+            android:id="@+id/signinshop_finish"
+            android:layout_width="match_parent"
+            android:layout_height="40dp"
+            android:text="提交"/>
+    </LinearLayout>
+
+</LinearLayout>
